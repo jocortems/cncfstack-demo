@@ -1,9 +1,0 @@
-{
-  "IsEncrypted": false,
-  "Values": {
-    "AzureWebJobsStorage": "DefaultEndpointsProtocol=https;AccountName=tomtaexpenses;AccountKey=f2L9qozaAjNwoq40HtB3/DCzXbPH1X2FH/zvbU7TsxzIzJHmGvf5Dcg985cchizGSkWTg94/L/BoY//JH1GEjg==;BlobEndpoint=https://tomtaexpenses.blob.core.windows.net/;TableEndpoint=https://tomtaexpenses.table.core.windows.net/;QueueEndpoint=https://tomtaexpenses.queue.core.windows.net/;FileEndpoint=https://tomtaexpenses.file.core.windows.net/",
-    "FUNCTIONS_WORKER_RUNTIME": "dotnet",
-    "StorageConnectionString": "DefaultEndpointsProtocol=https;AccountName=tomtaexpenses;AccountKey=f2L9qozaAjNwoq40HtB3/DCzXbPH1X2FH/zvbU7TsxzIzJHmGvf5Dcg985cchizGSkWTg94/L/BoY//JH1GEjg==;EndpointSuffix=core.windows.net",
-    "SendGridKey": "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"
-  }
-}
