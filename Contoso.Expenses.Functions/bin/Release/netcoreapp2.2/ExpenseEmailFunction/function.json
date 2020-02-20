@@ -1,0 +1,15 @@
+{
+  "generatedBy": "Microsoft.NET.Sdk.Functions-1.0.24",
+  "configurationSource": "attributes",
+  "bindings": [
+    {
+      "type": "queueTrigger",
+      "connection": "AzureWebJobsStorage",
+      "queueName": "contosoexpenses",
+      "name": "expenseItem"
+    }
+  ],
+  "disabled": false,
+  "scriptFile": "../bin/Contoso.Expenses.Functions.dll",
+  "entryPoint": "Contoso.Expenses.Functions.ExpenseEmailFunction.Run"
+}

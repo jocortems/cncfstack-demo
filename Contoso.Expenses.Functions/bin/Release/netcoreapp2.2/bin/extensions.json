@@ -1,0 +1,6 @@
+{
+  "extensions":[
+    { "name": "SendGrid", "typeName":"Microsoft.Azure.WebJobs.Extensions.SendGrid.SendGridWebJobsStartup, Microsoft.Azure.WebJobs.Extensions.SendGrid, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35"},
+    { "name": "AzureStorage", "typeName":"Microsoft.Azure.WebJobs.Extensions.Storage.AzureStorageWebJobsStartup, Microsoft.Azure.WebJobs.Extensions.Storage, Version=3.0.4.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35"}
+  ]
+}

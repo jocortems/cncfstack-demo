@@ -1,0 +1,148 @@
+{
+  "format": 1,
+  "restore": {
+    "C:\\Faisal\\Development\\DockerAndContainers\\CNCFProject\\ContosoCoreProject\\Contoso.Expenses.Functions\\Contoso.Expenses.Functions.csproj": {}
+  },
+  "projects": {
+    "C:\\Faisal\\Development\\DockerAndContainers\\CNCFProject\\ContosoCoreProject\\Contoso.Common\\Contoso.Expenses.Common.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Faisal\\Development\\DockerAndContainers\\CNCFProject\\ContosoCoreProject\\Contoso.Common\\Contoso.Expenses.Common.csproj",
+        "projectName": "Contoso.Expenses.Common",
+        "projectPath": "C:\\Faisal\\Development\\DockerAndContainers\\CNCFProject\\ContosoCoreProject\\Contoso.Common\\Contoso.Expenses.Common.csproj",
+        "packagesPath": "C:\\Users\\faisalm\\.nuget\\packages\\",
+        "outputPath": "C:\\Faisal\\Development\\DockerAndContainers\\CNCFProject\\ContosoCoreProject\\Contoso.Common\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Microsoft\\Xamarin\\NuGet\\",
+          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\faisalm\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Xamarin.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "netcoreapp2.2"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "netcoreapp2.2": {
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "netcoreapp2.2": {
+          "dependencies": {
+            "Microsoft.NETCore.App": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[2.2.0, )",
+              "autoReferenced": true
+            },
+            "microsoft.entityframeworkcore.sqlserver": {
+              "target": "Package",
+              "version": "[2.2.4, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.101\\RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\Faisal\\Development\\DockerAndContainers\\CNCFProject\\ContosoCoreProject\\Contoso.Expenses.Functions\\Contoso.Expenses.Functions.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Faisal\\Development\\DockerAndContainers\\CNCFProject\\ContosoCoreProject\\Contoso.Expenses.Functions\\Contoso.Expenses.Functions.csproj",
+        "projectName": "Contoso.Expenses.Functions",
+        "projectPath": "C:\\Faisal\\Development\\DockerAndContainers\\CNCFProject\\ContosoCoreProject\\Contoso.Expenses.Functions\\Contoso.Expenses.Functions.csproj",
+        "packagesPath": "C:\\Users\\faisalm\\.nuget\\packages\\",
+        "outputPath": "C:\\Faisal\\Development\\DockerAndContainers\\CNCFProject\\ContosoCoreProject\\Contoso.Expenses.Functions\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Microsoft\\Xamarin\\NuGet\\",
+          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\faisalm\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Xamarin.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "netcoreapp2.2"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "netcoreapp2.2": {
+            "projectReferences": {
+              "C:\\Faisal\\Development\\DockerAndContainers\\CNCFProject\\ContosoCoreProject\\Contoso.Common\\Contoso.Expenses.Common.csproj": {
+                "projectPath": "C:\\Faisal\\Development\\DockerAndContainers\\CNCFProject\\ContosoCoreProject\\Contoso.Common\\Contoso.Expenses.Common.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "netcoreapp2.2": {
+          "dependencies": {
+            "Microsoft.Azure.WebJobs.Extensions.SendGrid": {
+              "target": "Package",
+              "version": "[3.0.0, )"
+            },
+            "Microsoft.Azure.WebJobs.Extensions.Storage": {
+              "target": "Package",
+              "version": "[3.0.4, )"
+            },
+            "Microsoft.NET.Sdk.Functions": {
+              "target": "Package",
+              "version": "[1.0.24, )"
+            },
+            "Microsoft.NETCore.App": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[2.2.0, )",
+              "autoReferenced": true
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.101\\RuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}
