@@ -1,6 +1,5 @@
 # AKS Lab Setup
 
-
 This document outlines the steps to setup a fully fucntional AKS cluster with required components
 
  - AKS cluster creation
@@ -11,28 +10,23 @@ This document outlines the steps to setup a fully fucntional AKS cluster with re
  - Setup Cert Manager
  - Setup ExternalDNS
 
+## Prerequisites
 
-Prerequisites
+ - [Install Azure Cli](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-windows?view=azure-cli-latest)
+ - Install [Docker for Windows](https://docs.docker.com/docker-for-windows/install/)
+ - Install Choclatey
+    - Open Powershell in "Run as Administrator" mode and run the below command
+    ```
+        Set-ExecutionPolicy Bypass -Scope Process -Force; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1')) 
+    ```
+ - Install Helm
+    ```
+        choco install kubernetes-helm
+    ```
+ - Purchase a domain from [Godaddy](https://www.godaddy.com/)
+    `Mostly the doamin xyz costs $1 `
 
-[Install Azure Cli] ()
-Install Tools
-
-Install [Docker for Windows](https://docs.docker.com/docker-for-windows/install/)
-
-Install Choclatey
-Open Powershell in "Run as Administrator" mode and run the below command
-
-Set-ExecutionPolicy Bypass -Scope Process -Force; `
-  iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
-
-Install Helm
-
-choco install kubernetes-helm
-
-Purchase a domain from [Godaddy](https://www.godaddy.com/)
-Mostly the doamin xyz costs $1 
-
-AKS Cluster creation
+## AKS Cluster creation
 
 # Create the resource group
 az group create --name aks-demo --location eastus
