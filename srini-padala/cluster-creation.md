@@ -68,6 +68,7 @@ az aks enable-addons -a monitoring -n aks -g aks --workspace-resource-id <<works
 ```
 
 ## Connect from local machine
+Required to issue kubectl commands and interact with the cluster
 
 ```
 #Assign user permissions for RBAC
@@ -93,6 +94,7 @@ kubectl get nodes
 ```
 
 ## Access Kubernetes Dashboard
+Use the dashboard to get familiar with objects
 
 ```
 # Create the cluster role and binding
@@ -103,6 +105,7 @@ az aks browse --resource-group aks-demo --name aks
 ```
 
 ## Create DNS Zone
+DNS zone to facilitate automatic creation of the A and alias record for teh services exposed through ingress
 
 ```
 # Create the DNS Zone in the resource group
@@ -113,6 +116,7 @@ Get the [Nameservers](https://docs.microsoft.com/en-us/azure/dns/dns-delegate-do
 ```
 
 ## Create Ingress
+Ingress is the gateway for all communication to the cluster
 
 ```
 # Create a namespace
@@ -133,6 +137,7 @@ az network dns record-set a add-record --resource-group aks-demo --zone-name <<p
 ```
 
 ## Install Cert Manager for automatic certificate creation
+Facilitates automatic certs creation to enable ssl
 
 ```
 # Install the CustomResourceDefinition resources separately
@@ -175,7 +180,7 @@ spec:
 kubectl apply -f cluster-issuer.yaml --namespace ingress-basic
 ```
 ## Setup External DNS
-
+Facilitates the creation of the DNS record in the DNS zone 
 ```
 # Create a service principal to setup external dns
 az ad sp create-for-rbac -n aks-demo-externaldns-sp
