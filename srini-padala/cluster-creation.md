@@ -28,9 +28,12 @@ This document outlines the steps to setup a fully fucntional AKS cluster with re
 
 ## AKS Cluster creation
 
+```
 # Create the resource group
 az group create --name aks-demo --location eastus
+```
 
+```
 # Create vnet and subnet
 az network vnet create --resource-group aks-demo --name aks-demo-vnet --address-prefixes 10.0.0.0/8 --subnet-name default --subnet-prefix 10.240.0.0/16
 # Note the vnetid, subnetid from the output
@@ -41,24 +44,32 @@ az ad sp create-for-rbac --skip-assignment --name aks-demo-sp
 
 # Assignt the contributor role to the SP on the Vnet
 az role assignment create --assignee <<appid>> --scope <<vnetid>> --role Contributor
+```
 
+```
 # Create the AKS cluster
 az aks create --resource-group aks-demo --name aks --node-count 2 --kubernetes-version 1.15.7 --generate-ssh-keys --vm-set-type VirtualMachineScaleSets --load-balancer-sku standard --network-plugin azure --network-policy calico --service-cidr 10.0.0.0/16 --dns-service-ip 10.0.0.10 --docker-bridge-address 172.17.0.1/16 --vnet-subnet-id <<subnetid>> --service-principal <<appid>> --client-secret <<password>> --enable-cluster-autoscaler --min-count 2 --max-count 3 --node-count 2 --zones 1 2
+```
 
+```
 # Create Container Registry
 az acr create --resource-group aks-demo --name <<alias>> --sku Basic
 
+# Attach the container registry to the cluster
+az aks update -n aks -g aks-demo --attach-acr <<alias>>
+```
+
+```
 # [Create Log Analytics Workspace](https://docs.microsoft.com/en-us/azure/azure-monitor/learn/quick-create-workspace)
 # Enable Monitoring on the cluster
 az resource list --resource-type Microsoft.OperationalInsights/workspaces -o json
 # Note the workspaceid from the output
 az aks enable-addons -a monitoring -n aks -g aks --workspace-resource-id <<workspaceid>>
+```
 
-# Attach the container registry to the cluster
-az aks update -n aks -g aks-demo --attach-acr <<alias>>
+## Connect from local machine
 
-Connect from local machine
-
+```
 #Assign user permissions for RBAC
 az aks show --resource-group aks-demo --name aks --query id -o tsv
 # Note the <<clusterid>> from the output
@@ -79,26 +90,31 @@ az aks get-credentials --name aks --resource-group aks-demo
 
 # Get the nodes to verify the connectivity
 kubectl get nodes
+```
 
-Access Kubernetes Dashboard
+## Access Kubernetes Dashboard
 
+```
 # Create the cluster role and binding
 kubectl create clusterrolebinding kubernetes-dashboard --clusterrole=cluster-admin --serviceaccount=kube-system:kubernetes-dashboard
 
 # Access the kubernetes dashboard (open in new terminal)
 az aks browse --resource-group aks-demo --name aks
+```
 
+## Create DNS Zone
 
-Create DNS Zone
-
+```
 # Create the DNS Zone in the resource group
 az network dns zone create -g aks-demo -n <<dns purchased>>
 
 # Update the Names servers in godaddy website
 Get the [Nameservers](https://docs.microsoft.com/en-us/azure/dns/dns-delegate-domain-azure-dns) from the dns zone created and update them in [godaddy website](https://www.godaddy.com/help/change-nameservers-for-my-domains-664)
+```
 
-Create Ingress
+## Create Ingress
 
+```
 # Create a namespace
 kubectl create namespace ingress-basic
 
@@ -114,9 +130,11 @@ kubectl get svc --all-namespaces
 
 # Create an A record in the dns zone with name as "aks" and IP as noted above
 az network dns record-set a add-record --resource-group aks-demo --zone-name <<purchased domain>>  --record-set-name "aks" --ipv4-address <<External IP noted above>>
+```
 
-Install Cert Manager for automatic certificate creation
+## Install Cert Manager for automatic certificate creation
 
+```
 # Install the CustomResourceDefinition resources separately
 kubectl apply --validate=false -f https://raw.githubusercontent.com/jetstack/cert-manager/release-0.12/deploy/manifests/00-crds.yaml --namespace ingress-basic
 
@@ -131,7 +149,9 @@ helm repo update
 
 # Install the cert-manager Helm chart
 helm install cert-manager --namespace ingress-basic --version v0.12.0 jetstack/cert-manager --set ingressShim.defaultIssuerName=letsencrypt --set ingressShim.defaultIssuerKind=ClusterIssuer
+```
 
+```
 # Update the email adress to yours and save the below content as cluster-issuer.yaml
 
 apiVersion: cert-manager.io/v1alpha2
@@ -149,11 +169,14 @@ spec:
         ingress:
           class: nginx
 
+```
+```
 # apply the yaml to create the cluster issuer
 kubectl apply -f cluster-issuer.yaml --namespace ingress-basic
+```
+## Setup External DNS
 
-Setup External DNS
-
+```
 # Create a service principal to setup external dns
 az ad sp create-for-rbac -n aks-demo-externaldns-sp
 # Note the appid, password, tenant
@@ -171,7 +194,9 @@ az network dns zone show --name <<purchased dns>> -g aks-demo
 
 # Assign contributor permission to the sp on the dns zone
 az role assignment create --role "Contributor" --assignee <<appid>> --scope <<dns zone id>> 
+```
 
+```
 # Create a config file for external dns to access the dns zone to create the records
 # Copy the contents below, Update the values and save it as azure.json
 {
@@ -181,13 +206,17 @@ az role assignment create --role "Contributor" --assignee <<appid>> --scope <<dn
   "aadClientId": "<<appid>>",
   "aadClientSecret": "<<password>>"
 }
+```
 
+```
 # Create a namespace for external-dns
 kubectl create ns external-dns
 
 # Create a kubernetes secret from teh above json file
 kubectl create secret generic azure-config-file --from-file=azure.json --namespace external-dns
+```
 
+```
 # Copy the below yaml to a file external-dns.yaml
 
 apiVersion: v1
@@ -262,12 +291,16 @@ spec:
         secret:
           secretName: azure-config-file
 
+```
 
+```
 # Update the purchased domain in the config and apply the yaml to create the deployment
 kubectl apply -f external-dns.yaml --namespace external-dns
+```
 
-Build Hello World Docker Image
+## Build Hello World Docker Image
 
+```
 # Download the contents of nginx-hellow-world folder to a local folder
 
 # Open command prompt to the folder
@@ -280,9 +313,11 @@ az acr login --name <<alias>>
 
 # Push the docker image to acr
 docker push <<alias>.azurecr.io/demo/nginx-hello-world:latest
+```
 
-Deploy the container
+## Deploy the container
 
+```
 # Copy the contents below into nginx-hello-world.yaml
 
 apiVersion: apps/v1
@@ -346,11 +381,13 @@ spec:
             serviceName: frontend-svc
             servicePort: 80
          path: /(.*)
+```
 
+```
 # Update the alias for the acr name and the host name on the ingress to the purchased domain
 
 # Create the deployment
 kubectl apply -f nginx-hello-world.yaml
 
 # Access the application using hello.aks.<<purchased domain>>
-
+```
