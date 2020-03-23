@@ -79,7 +79,7 @@ metadata:
 type: kubernetes.io/basic-auth
 stringData:
   username: lab-admin
-  password: Sr!n!433
+  password: <<pwd>>
 ---
 apiVersion: v1
 kind: ServiceAccount
