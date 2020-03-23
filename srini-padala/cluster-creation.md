@@ -124,8 +124,26 @@ az account show --query user.name -o tsv
 az ad user show --upn-or-object-id <<userprincipal>> --query objectId -o tsv
 # Note the <<account id>> from the output
 
-# Assign the 'Cluster Admin' role to the user
-az role assignment create  --assignee <<account id>>  --scope <<clusterid>> --role "Azure Kubernetes Service Cluster Admin Role"
+# Get the admin user context to create the cluster role binding
+az aks get-credentials --resource-group aks-demo --name aks --admin
+
+# Create the cluster-role-binding.yaml with the content below replacing the accountid/objectid
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: contoso-cluster-admins
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+- apiGroup: rbac.authorization.k8s.io
+  kind: User
+  name: <<account id>>
+
+# Apply the binding
+kubectl apply -f cluster-role-binding.yaml
 
 # Get the kubeconfig
 az aks get-credentials --name aks --resource-group aks-demo
