@@ -1,0 +1,20 @@
+apiVersion: tekton.dev/v1alpha1
+kind: TaskRun
+metadata:
+  name: create-ingress-run
+  namespace: getting-started
+spec:
+  taskRef:
+    name: create-ingress
+  inputs:
+    params:
+    - name: CertificateSecretName
+      value: tls-getting-started-tekton-webhook-secret
+    - name: ExternalDomain
+      value: gettingstarted.tektonwebhooks.aks.srinipadala.xyz
+    - name: Service
+      value: getting-started
+    - name: ServicePort
+      value: "8080"
+  timeout: 1000s
+  serviceAccountName: tekton-triggers-createwebhook
