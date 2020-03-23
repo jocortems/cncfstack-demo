@@ -1,0 +1,114 @@
+apiVersion: tekton.dev/v1alpha1
+kind: TriggerTemplate
+metadata:
+  name: getting-started-triggertemplate
+  namespace: getting-started
+spec:
+  params:
+    - name: gitrevision
+      description: The git revision
+      default: master
+    - name: gitrepositoryurl
+      description: The git repository url
+    - name: imageUrl
+      description: Url of image repository
+    - name: namespace
+      description: The namespace to create the resources
+  resourcetemplates:
+    - apiVersion: tekton.dev/v1alpha1
+      kind: PipelineRun
+      metadata:
+        name: getting-started-pipeline-run-$(uid)
+        namespace: $(params.namespace)
+      spec:
+        serviceAccountName: deployment-user
+        pipelineRef:
+          name: getting-started-pipeline
+        resources:
+          - name: source-repo
+            resourceSpec:
+              type: git
+              params:
+              - name: revision
+                value: $(params.gitrevision)
+              - name: url
+                value: $(params.gitrepositoryurl)
+          - name: image-source
+            resourceSpec:
+              type: image
+              params:
+                - name: url
+                  value: $(params.imageUrl)
+---
+apiVersion: tekton.dev/v1alpha1
+kind: TriggerBinding
+metadata:
+  name: getting-started-pipelinebinding
+  namespace: getting-started
+spec:
+  params:
+    - name: gitrevision
+      value: $(body.head_commit.id)
+    - name: namespace
+      value: getting-started
+    - name: gitrepositoryurl
+      value: "https://github.com/$(body.repository.full_name)"
+    - name: imageUrl
+      value: "harbor.aks.srinipadala.xyz/lab/tekton-demo:$(body.head_commit.id)"
+---
+apiVersion: tekton.dev/v1alpha1
+kind: EventListener
+metadata:
+  name: getting-started-listener
+  namespace: getting-started
+spec:
+  serviceAccountName: tekton-triggers-admin
+  triggers:
+    - bindings:
+      - name: getting-started-pipelinebinding
+      template:
+        name: getting-started-triggertemplate
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: basic-user-pass
+  namespace: getting-started
+  annotations:
+    tekton.dev/docker-0: https://harbor.aks.srinipadala.xyz
+type: kubernetes.io/basic-auth
+stringData:
+  username: lab-admin
+  password: Sr!n!433
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: deployment-user
+  namespace: getting-started
+secrets:
+  - name: basic-user-pass
+---
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: pipeline-role
+  namespace: getting-started
+rules:
+- apiGroups: ["", "extensions", "apps"]
+  resources: ["*"]
+  verbs: ["*"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: pipeline-role-binding
+  namespace: getting-started
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: pipeline-role
+subjects:
+- kind: ServiceAccount
+  name: deployment-user
+  namespace: getting-started
