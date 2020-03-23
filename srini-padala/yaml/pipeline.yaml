@@ -1,0 +1,107 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Pipeline
+metadata:
+  name: getting-started-pipeline
+  namespace: getting-started
+spec:
+  resources:
+    - name: source-repo
+      type: git
+    - name: image-source
+      type: image
+  tasks:
+    - name: build-docker-image
+      taskRef:
+        name: build-docker-image
+      params:
+        - name: pathToDockerFile
+          value: Dockerfile
+        - name: pathToContext
+          value: /workspace/source-repo
+      resources:
+        inputs:
+          - name: source-repo
+            resource: source-repo
+        outputs:
+          - name: image-source
+            resource: image-source
+    - name: deploy-using-kubectl
+      taskRef:
+        name: deploy-using-kubectl
+      params:
+        - name: pathToYamlFile
+          value: deploy.yaml
+      resources:
+        inputs:
+          - name: source-repo
+            resource: source-repo
+          - name: image-source
+            resource: image-source
+            from:
+              - build-docker-image
+---
+apiVersion: tekton.dev/v1alpha1
+kind: Task
+metadata:
+  name: build-docker-image
+  namespace: getting-started
+spec:
+  inputs:
+    resources:
+      - name: source-repo
+        type: git
+    params:
+      - name: pathToDockerFile
+        description: Path to Dockerfile
+        default: /workspace/source-repo/Dockerfile
+      - name: pathToContext
+        description: The build context used by Kaniko
+        default: /workspace/source-repo
+  outputs:
+    resources:
+      - name: image-source
+        type: image
+  steps:
+    - name: build-and-push
+      image: gcr.io/kaniko-project/executor:v0.15.0
+      env:
+        - name: "DOCKER_CONFIG"
+          value: "/builder/home/.docker/"
+      command:
+        - /kaniko/executor
+      args:
+        - --dockerfile=$(inputs.params.pathToDockerFile)
+        - --destination=$(outputs.resources.image-source.url)
+        - --context=$(inputs.params.pathToContext)
+---
+apiVersion: tekton.dev/v1alpha1
+kind: Task
+metadata:
+  name: deploy-using-kubectl
+  namespace: getting-started
+spec:
+  inputs:
+    resources:
+      - name: source-repo
+        type: git
+      - name: image-source
+        type: image
+    params:
+      - name: pathToYamlFile
+        description: The path to the yaml file to deploy within the git source
+  steps:
+    - name: update-yaml
+      image: alpine
+      command: ["sed"]
+      args:
+        - "-i"
+        - "-e"
+        - "s;__IMAGE__;$(inputs.resources.image-source.url);g"
+        - "/workspace/source-repo/$(inputs.params.pathToYamlFile)"
+    - name: run-kubectl
+      image: lachlanevenson/k8s-kubectl
+      command: ["kubectl"]
+      args:
+        - "apply"
+        - "-f"
+        - "/workspace/source-repo/$(inputs.params.pathToYamlFile)"
