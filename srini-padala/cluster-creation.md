@@ -47,8 +47,49 @@ az role assignment create --assignee <<appid>> --scope <<vnetid>> --role Contrib
 ```
 
 ```
+# Create the Azure AD application
+az ad app create  --display-name "aksServer"  --identifier-uris "https://aksServer"  --query appId -o tsv
+# Note the serverApplicationId from the output
+
+# Update the application group memebership claims
+az ad app update --id <<serverApplicationId>> --set groupMembershipClaims=All
+
+# Create a service principal for the Azure AD application
+az ad sp create --id <<serverApplicationId>>
+
+# Get the service principal secret
+az ad sp credential reset  --name <<serverApplicationId>>  --credential-description "AKSPassword"  --query password -o tsv
+# Note the serverApplicationSecret
+
+az ad app permission add  --id <<serverApplicationId>>  --api 00000003-0000-0000-c000-000000000000  --api-permissions e1fe6dd8-ba31-4d61-89e7-88639da4683d=Scope 06da0dbc-49e2-44d2-8312-53f166ab848a=Scope 7ab1d382-f21e-4acd-a863-ba3e13f7da61=Role
+
+az ad app permission grant --id <<serverApplicationId>> --api 00000003-0000-0000-c000-000000000000
+az ad app permission admin-consent --id  <<serverApplicationId>>
+
+```
+
+```
+az ad app create  --display-name "aksClient"  --native-app  --reply-urls "https://aksClient"  --query appId -o tsv
+# Note the clientApplicationId from the output
+
+az ad sp create --id <<clientApplicationId>>
+
+az ad app show --id $serverApplicationId --query "oauth2Permissions[0].id" -o tsv
+# Note <<oAuthPermissionId>>
+
+az ad app permission add --id <<clientApplicationId>> --api <<serverApplicationId>> --api-permissions <<oAuthPermissionId>>=Scope
+az ad app permission grant --id <<clientApplicationId>> --api <<serverApplicationId>>
+
+#Get the tenant id
+az account show --query tenantId -o tsv
+# Note <<tenantId>>
+
+```
+
+```
 # Create the AKS cluster
-az aks create --resource-group aks-demo --name aks --node-count 2 --kubernetes-version 1.15.7 --generate-ssh-keys --vm-set-type VirtualMachineScaleSets --load-balancer-sku standard --network-plugin azure --network-policy calico --service-cidr 10.0.0.0/16 --dns-service-ip 10.0.0.10 --docker-bridge-address 172.17.0.1/16 --vnet-subnet-id <<subnetid>> --service-principal <<appid>> --client-secret <<password>> --enable-cluster-autoscaler --min-count 2 --max-count 3 --node-count 2 --zones 1 2
+az aks create --resource-group aks-demo --name aks --node-count 2 --kubernetes-version 1.15.7 --generate-ssh-keys --vm-set-type VirtualMachineScaleSets --load-balancer-sku standard --network-plugin azure --network-policy calico --service-cidr 10.0.0.0/16 --dns-service-ip 10.0.0.10 --docker-bridge-address 172.17.0.1/16 --vnet-subnet-id <<subnetid>> --service-principal <<appid>> --client-secret <<password>> --enable-cluster-autoscaler --min-count 2 --max-count 3 --node-count 2 --zones 1 2 --aad-server-app-id <<serverApplicationId>> --aad-server-app-secret <<serverApplicationSecret>> --aad-client-app-id <<clientApplicationId>> --aad-tenant-id <<tenantId>>
+
 ```
 
 ```
