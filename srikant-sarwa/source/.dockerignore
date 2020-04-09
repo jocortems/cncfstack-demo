@@ -1,7 +1,0 @@
-Dockerfile
-[b|B]in
-[O|o]bj
-Contoso.Common/bin
-Contoso.Common/obj
-Contoso.Expenses.Web/bin
-Contoso.Expenses.Web/obj
