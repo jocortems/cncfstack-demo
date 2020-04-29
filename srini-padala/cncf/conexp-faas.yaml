@@ -1,0 +1,16 @@
+apiVersion: openfaas.com/v1alpha2
+kind: Function
+metadata:
+  name: expenseemailsender
+  annotations:
+    topic: "nats-email"
+spec:
+  name: expenseemailsender
+  image: registry.aks.srinipadala.xyz/conexp/emaildispatcher:latest
+  imagePullSecrets:
+  - name: regcred
+  environment:
+    write_debug: "true"
+    SENDGRID_API_KEY: "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"
+  secrets:
+      - regcred

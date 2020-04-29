@@ -1,0 +1,19 @@
+apiVersion: tekton.dev/v1alpha1
+kind: TaskRun
+metadata:
+  name: create-ingress-run
+spec:
+  taskRef:
+    name: create-ingress
+  inputs:
+    params:
+    - name: CertificateSecretName
+      value: tls-conexp-mvp-cicd-secret
+    - name: ExternalDomain
+      value: conexp-mvp.cicd.aks.srinipadala.xyz
+    - name: Service
+      value: el-conexp-listener
+    - name: ServicePort
+      value: "8080"
+  timeout: 1000s
+  serviceAccountName: tekton-triggers-createwebhook
