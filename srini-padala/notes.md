@@ -1,28 +1,35 @@
-Rook Installation
-----------------------------------------------
+##Rook Installation
+
+```
 kubectl apply -f cncf/common.yaml
 kubectl apply -f cncf\operator.yaml
 kubectl apply -f cncf\cluster.yaml
 kubectl apply -f cncf\storageclass.yaml
+```
 
-
-Harbor Installation
-----------------------------------------------
+##Harbor Installation
+```
 kubectl create namespace harbor-system
 helm repo add harbor https://helm.goharbor.io
 
 helm install harbor --namespace harbor-system harbor/harbor --set expose.ingress.hosts.core=registry.aks.srinipadala.xyz --set expose.ingress.hosts.notary=notary.aks.srinipadala.xyz  --set expose.tls.secretName=ingress-cert-harbor --set expose.tls.notarySecretName=ingress-cert-notary --set expose.ingress.annotations.kubernetes\.io/ingress\.class=nginx --set expose.ingress.annotations.cert-manager\.io/cluster-issuer=letsencrypt  --set expose.ingress.annotations.external-dns\.alpha\.kubernetes\.io/target=aks.srinipadala.xyz --set persistence.enabled=true --set externalURL=https://registry.aks.srinipadala.xyz --set harborAdminPassword=admin  --set persistence.persistentVolumeClaim.registry.storageClass=rook-ceph-block --set persistence.persistentVolumeClaim.chartmuseum.storageClass=rook-ceph-block --set persistence.persistentVolumeClaim.jobservice.storageClass=rook-ceph-block --set persistence.persistentVolumeClaim.database.storageClass=rook-ceph-block --set persistence.persistentVolumeClaim.redis.storageClass=rook-ceph-block
+```
 
+```
 https://registry.aks.srinipadala.xyz/
 admin
 FTA@CNCF0n@zure3
+```
 
-MySQL installation
-----------------------------------------------
+##MySQL installation
+
+Deploy Mysql
+```
 kubectl create ns mysql
 helm install mysql stable/mysql  --set mysqlRootPassword=FTA@CNCF0n@zure3,mysqlUser=ftacncf,mysqlPassword=FTA@CNCF0n@zure3,mysqlDatabase=conexp-mysql,persistence.storageClass=rook-ceph-block -n mysql
-
-
+```
+Create the databases 
+```
 kubectl run -n conexp-mysql -i --tty ubuntu --image=ubuntu:16.04 --restart=Never -- bash -il
 apt-get update && apt-get install mysql-client -y
 mysql -h mysql -p
@@ -50,9 +57,11 @@ GRANT ALL PRIVILEGES ON *.* TO 'ftacncf'@'%';
 
 USE conexpweb;
 GRANT ALL PRIVILEGES ON *.* TO 'ftacncf'@'%';
+```
 
-OpenFaaS
-----------------------------------------------
+##OpenFaaS
+
+```
 helm repo add openfaas https://openfaas.github.io/faas-netes/
 helm repo update
 
@@ -61,33 +70,48 @@ kubectl apply -f https://raw.githubusercontent.com/openfaas/faas-netes/master/na
 kubectl -n openfaas create secret generic basic-auth --from-literal=basic-auth-user=admin --from-literal=basic-auth-password="FTA@CNCF0n@zure3"
 
 helm install openfaas openfaas/openfaas -f cncf\openfaas-values.yaml -n openfaas
+```
 
+```
 https://openfaas.aks.srinipadala.xyz/ui/
 admin
 FTA@CNCF0n@zure3
+```
 
+Install the Nats Connector
+```
 kubectl apply -f cncf\nats-connector.yaml
+```
+##Prometheus
 
-Prometheus
-----------------------------------------------
+```
 kubectl create ns monitoring
 helm install prometheus stable/prometheus-operator -f cncf\prometheus-values.yaml -n monitoring
-
+```
+```
 https://grafana.aks.srinipadala.xyz/
 admin
 FTA@CNCF0n@zure3
 https://prometheus.aks.srinipadala.xyz/
+```
 
-Jaeger
-----------------------------------------------
+##Jaeger
+
+```
 helm repo add jaegertracing https://jaegertracing.github.io/helm-charts
 helm repo update
 
 kubectl create ns tracing
 helm install jaeger jaegertracing/jaeger -f cncf\jaeger-values.yaml -n tracing
+```
+```
+https://tracing.aks.srinipadala.xyz/
+```
 
 ##Linkerd
-----------------------------------------------
+
+Deploy Linkered
+```
 curl -sL https://run.linkerd.io/install | sh
 
 export PATH=$PATH:$HOME/.linkerd2/bin
@@ -96,27 +120,59 @@ linkerd version
 
 linkerd check --pre
 
- sudo apt install step
+sudo apt install step
 
 step certificate create identity.linkerd.cluster.local ca.crt ca.key --profile root-ca --no-password --insecure
 
 step certificate create identity.linkerd.cluster.local issuer.crt issuer.key --ca ca.crt --ca-key ca.key --profile intermediate-ca --not-after 8760h --no-password --insecure
 
 linkerd install --identity-trust-anchors-file ca.crt --identity-issuer-certificate-file issuer.crt --identity-issuer-key-file issuer.key | kubectl apply -f -
+```
 
+Integrate Openfaas with Linkerd
+```
 kubectl -n openfaas get deploy gateway -o yaml | linkerd inject --skip-outbound-ports=4222 - | kubectl apply -f -
 kubectl annotate namespace openfaas-fn linkerd.io/inject=enabled
+```
 
+Integrate Nginx Ingress controller with Linkerd
+```
 kubectl get deploy/nginx-nginx-ingress-controller -n ingress-basic -o yaml | linkerd inject - | kubectl apply -f - 
+```
 
-<<Annotate the ingress>>
-nginx.ingress.kubernetes.io/configuration-snippet: |
-  proxy_set_header l5d-dst-override $service_name.$namespace.svc.cluster.local;
-  proxy_hide_header l5d-remote-ip;
-  proxy_hide_header l5d-server-id;
-
+Enable Oauth on Linkerd Dashboard
 Register an application in Azure AD to match the return uri
+```
 kubectl apply -f cncf\linkerd-ingress.yaml -n linkerd
+```
+
+Linkerd metrics integration with Prometheus
+```
+kubectl create secret generic additional-scrape-configs --from-file=prometheus-additional.yaml -n monitoring
+kubectl edit prometheus  prometheus-prometheus-oper-prometheus  -n monitoring
+
+Add the additionalScrapeConfigs as below
+  ....
+  ....
+  serviceMonitorSelector:
+    matchLabels:
+      team: frontend
+  additionalScrapeConfigs:
+    name: additional-scrape-configs
+    key: prometheus-additional.yaml
+  ....
+  ....
+```
+
+Linkerd integration with Jaeger
+```
+kubectl  apply -f cncf\opencesus-collector.yaml -n tracing
+
+kubectl annotate namespace openfaas-fn config.linkerd.io/trace-collector=oc-collector.tracing:55678
+kubectl annotate namespace openfaas config.linkerd.io/trace-collector=oc-collector.tracing:55678
+kubectl annotate namespace ingress-basic config.linkerd.io/trace-collector=oc-collector.tracing:55678
+kubectl annotate namespace conexp-mvp config.linkerd.io/trace-collector=oc-collector.tracing:55678
+```
 
 https://linkerd-dashboard.aks.srinipadala.xyz/
 
