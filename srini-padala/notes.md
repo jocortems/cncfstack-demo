@@ -86,7 +86,7 @@ helm repo update
 kubectl create ns tracing
 helm install jaeger jaegertracing/jaeger -f cncf\jaeger-values.yaml -n tracing
 
-Linkerd
+##Linkerd
 ----------------------------------------------
 curl -sL https://run.linkerd.io/install | sh
 
@@ -120,26 +120,31 @@ kubectl apply -f cncf\linkerd-ingress.yaml -n linkerd
 
 https://linkerd-dashboard.aks.srinipadala.xyz/
 
-Tekton
-----------------------------------------------
+##Tekton
+Install Tekton pipelines
+```
 kubectl apply -f https://storage.googleapis.com/tekton-releases/latest/release.yaml
 
 kubectl apply -f tekton-default-configmap  -n  tekton-pipelines
 kubectl apply -f tekton-pvc-configmap -n  tekton-pipelines
 kubectl apply -f tekton-feature-flags-configmap.yaml -n  tekton-pipelines
-
+```
 Install Tekton Triggers
+```
 kubectl apply --filename https://storage.googleapis.com/tekton-releases/triggers/latest/release.yaml
-
+```
 Install Tekton Dashboard
+```
 kubectl apply --filename https://github.com/tektoncd/dashboard/releases/download/v0.5.2/tekton-dashboard-release.yaml
 kubectl apply -f tekton-dashboard-ingress.yaml
+```
 
+##App Installation
 
-App Installation
-----------------------------------------------
+Build and push the containers
+```
 docker login registry.aks.srinipadala.xyz
-Conexp
+conexp
 FTA@CNCF0n@zure3
 
 cd Contoso.Expenses.API
@@ -152,25 +157,24 @@ docker push registry.aks.srinipadala.xyz/conexp/web:latest
 
 docker build -t registry.aks.srinipadala.xyz/conexp/emaildispatcher:latest -f Contoso.Expenses.OpenFaaS/Dockerfile .
 docker push registry.aks.srinipadala.xyz/conexp/emaildispatcher:latest
+```
 
-
+```
 kubectl create ns conexp-mvp
 kubectl annotate namespace conexp-mvp linkerd.io/inject=enabled
+kubectl annotate namespace config.linkerd.io/skip-outbound-ports="4222"
+```
 
+Create the registry credentials in teh deployment namespaces
+```
 kubectl create secret docker-registry regcred --docker-server="https://registry.aks.srinipadala.xyz" --docker-username=conexp  --docker-password=FTA@CNCF0n@zure3  --docker-email=srpadala@microsoft.com -n conexp-mvp
-
 kubectl create secret docker-registry regcred --docker-server="https://registry.aks.srinipadala.xyz" --docker-username=conexp  --docker-password=FTA@CNCF0n@zure3  --docker-email=srpadala@microsoft.com -n openfaas-fn
+```
 
-kubectl apply -f cncf\conexp-web.yaml -n conexp-mvp
-
-kubectl apply -f cncf\conexp-backend -n conexp-mvp
-
-kubectl apply -f cncf\conexp-faas.yaml -n openfaas-fn
+##Tekton - App Deployment
 
 
-Tekton - App Deployment
-----------------------------------------------
-
+```
 kubectl create ns conexp-mvp-devops
 
 kubectl apply -f cncf\webhook-role.yaml -n conexp-mvp-devops
@@ -178,23 +182,28 @@ kubectl apply -f cncf\admin-role.yaml -n conexp-mvp-devops
 
 kubectl apply -f cncf\create-ingress.yaml -n conexp-mvp-devops
 kubectl apply -f cncf\create-webhook.yaml -n conexp-mvp-devops
+```
 
 Update Secret (basic-user-pass) for registry credentails, TriggerBinding for registry name,namespaces in triggers.yaml
-
+```
 kubectl apply -f cncf\pipeline.yaml -n conexp-mvp-devops
 kubectl apply -f cncf\triggers.yaml -n conexp-mvp-devops
+```
 
 Roles and bindings in the deployment namespace
+```
 kubectl apply -f cncf\deploy-rolebinding.yaml -n conexp-mvp
 kubectl apply -f cncf\deploy-rolebinding.yaml -n openfaas-fn
+```
 
 Generate PAT token for the repo -> public_repo, admin:repo_hook, update the token in github-secret.yaml
+```
 kubectl apply -f cncf\github-secret.yaml -n conexp-mvp-devops
-
-Generate ssh keypair for github access 
-ssh-keygen -t rsa -b 4096 -C "srpadala@microsoft.com"
+```
 
 Update servicename, secretname, domain in the ingress-run.yaml
 Update org/user/repo/domain in the webhook-run.yaml
+```
 kubectl apply -f cncf\ingress-run.yaml  -n conexp-mvp-devops
 kubectl apply -f cncf\webhook-run.yaml -n conexp-mvp-devops
+```
