@@ -1,3 +1,19 @@
+
+Refer the [cncf](cncf\readme.md) folder for the yamls
+
+Application Urls
+
+- [OpenFaas UI](https://openfaas.aks.srinipadala.xyz/ui/)
+- [Promethues](https://prometheus.aks.srinipadala.xyz/)
+- [Jaeger](https://tracing.aks.srinipadala.xyz/)
+- [Harbor](https://registry.aks.srinipadala.xyz/)
+- [Linkerd](https://linkerd-dashboard.aks.srinipadala.xyz/)
+- [Tekton](https://tekton.aks.srinipadala.xyz/)
+- [Grafana](https://grafana.aks.srinipadala.xyz/)
+- [Application](https://conexp.aks.srinipadala.xyz/)
+
+- [Sourcode in github](https://github.com/seenu433/conexp-mvp)
+
 ##Rook Installation
 
 ```
