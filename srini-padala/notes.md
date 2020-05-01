@@ -157,7 +157,10 @@ kubectl get deploy/nginx-nginx-ingress-controller -n ingress-basic -o yaml | lin
 ```
 
 Enable Oauth on Linkerd Dashboard
-Register an application in Azure AD to match the return uri
+
+- Register an application in Azure AD to match the Sign-on URL as https://your_website_fqdn/oauth2/callback
+- update OAUTH2_PROXY_AZURE_TENANT, OAUTH2_PROXY_CLIENT_ID, OAUTH2_PROXY_CLIENT_SECRET
+
 ```
 kubectl apply -f cncf\linkerd-ingress.yaml -n linkerd
 ```
