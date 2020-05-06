@@ -17,7 +17,7 @@ First step is to instrument the application using [App Metrics](https://github.c
     4. App.Metrics.Formatters.Prometheus
     5. App.Metrics.AspNetCore.Mvc
 ```
-  ![App Metrics NuGet packages](./images/monitoring/appmetrics-nugetpackages.png)
+   + ![App Metrics NuGet packages](./images/monitoring/appmetrics-nugetpackages.png)
 
 - In Startup.cs class, ConfigureServices method add the following on the top. This will register IMetrics interface in our application. 
 
@@ -50,5 +50,18 @@ First step is to instrument the application using [App Metrics](https://github.c
 - That’s all, now you can run the application and check out the out of the box metrics using /metrics-text endpoint for application level metrics.
   + For example: https://localhost:44335/metrics-text 
 
+- Now you can let Prometheus scrape App Metric's metrics endpoint (example: https://localhost:44335/metrics-text ) and collect the metrics and store it in Prometheus timeseries database. From there you can leverage Grafana to point to Prometheus database to import the data to its own store to show nice dashboards.
 
+- To run Prometheus locally (you can also run as a docker container)
+  + Download stable (not pre-release)  latest Prometheus (example: prometheus-2.17.2.windows-amd64.tar.gz) from https://prometheus.io/download/
+  + Extract the zip
+  + Run the Prometheus exe (for example: "C:\Users\umarm\Downloads\prometheus-2.17.1.windows-amd64\promtool.exe") 
+  + Before you run the exe, modify the prometheus.yaml to scrape right endpoints under Scrape_configs: section
+  ```yml
+  - job_name: 'contosoweb'
+	static_configs:
+	  - targets: ['localhost:44335']
+	metrics_path: /metrics-text
+  ```
+  + ![Prometheus Scrape Config](./images/monitoring/prometheus-scrapeconfig.png)
 
