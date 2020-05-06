@@ -65,3 +65,11 @@ First step is to instrument the application using [App Metrics](https://github.c
   ```
   + ![Prometheus Scrape Config](./images/monitoring/prometheus-scrapeconfig.png)
 
+- Run Prometheus.exe and it will be ready to scrape metrics. 
+
+- Run Contoso Web application locally in debug mode, give it about 15 seconds, Prometheus will start scraping metrics endpoint. 
+
+- Now browse to, http://localhost:9090 and search for any metrics for example: application_httprequests_active and you will see 1 in the value. 
+ + ![Prometheus Dashboard](./images/monitoring/prometheus-dashboard.png)
+
+ 
