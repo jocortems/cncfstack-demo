@@ -1,11 +1,11 @@
 ## Monitoring using App Metrics, Prometheus & Grafana
 
-This document outlines how to instrument Contoso Expenses application and monitor using Prometheus & Grafana.
+This document outlines how to instrument Contoso Expenses application using App Metrics and monitor using Prometheus & Grafana.Here are the two high level tasks:
 
  - Local development & testing 
  - Deployment & configuration of AKS cluster
 
-### Development
+### Local Development & Testing
 
 First step is to instrument the application using [App Metrics](https://github.com/AppMetrics/AppMetrics). 
 
@@ -107,7 +107,7 @@ First step is to instrument the application using [App Metrics](https://github.c
 		        }
        ```
     + Once the Expense is successfully inserted in to DB, increase the number of expenses submitted counter in OnPostAsync method
-    ```csharp
+      ```csharp
     		 public async Task<IActionResult> OnPostAsync()
 		        {
 		            if (!ModelState.IsValid)
@@ -126,7 +126,7 @@ First step is to instrument the application using [App Metrics](https://github.c
 			            return RedirectToPage("./Index");
 		         }
 
-    ```
+      ```
     + Create a new solution folder called AppMetrics and add new class called MetricsRegistry.cs and add the following
       ```csharp
     		using App.Metrics;
@@ -147,4 +147,22 @@ First step is to instrument the application using [App Metrics](https://github.c
 			}
 
       ```
-    
+ ### Deployment & configuration of AKS cluster
+
+ This section of the doc will walk you through on how to install & configure Prometheus & Grafana on AKS cluster.
+
+- Familiarize yourself with [Prometheus Operator](https://github.com/helm/charts/tree/master/stable/prometheus-operator). We will install Prometheus Operator on AKS cluster which will include Prometheus & Grafana.
+
+- To install Prometheus Operator, create monitoring namespace first then install using Helm.
+  ```azurecli
+  kubectl create ns monitoring
+  helm install prometheus stable/prometheus-operator -f cncf\prometheus-values.yaml -n monitoring
+  ```
+- Grafana credentials and URLs:
+  ```azurecli
+  https://grafana.aks.srinipadala.xyz/
+  admin
+  FTA@CNCF0n@zure3
+  https://prometheus.aks.srinipadala.xyz/
+  ```
+- Install Grafana App Metrics dashboard using the steps mentioned during development process.
