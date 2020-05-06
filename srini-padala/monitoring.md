@@ -147,7 +147,7 @@ First step is to instrument the application using [App Metrics](https://github.c
 			}
 
       ```
- ### Deployment & configuration of AKS cluster
+ ### Deployment & configuration of Prometheus on AKS cluster
 
  This section of the doc will walk you through on how to install & configure Prometheus & Grafana on AKS cluster.
 
