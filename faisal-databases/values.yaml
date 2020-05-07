@@ -1,0 +1,8 @@
+mysqlUser:
+  Default: "ftacncf"
+  mysqlPassword: "FTA@CNCF0n@zure3"
+mysqlRootPassword: "FT@CNCF0n@zur3"
+
+persistence:
+  enabled: false
+  storageClass: "azurefile"

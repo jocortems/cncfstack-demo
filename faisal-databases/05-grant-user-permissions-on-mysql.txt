@@ -1,0 +1,5 @@
+use mysql
+CREATE USER IF NOT EXISTS 'ftacncf'@'%' IDENTIFIED BY 'FT@CNCF0n@zur3';
+
+GRANT ALL PRIVILEGES ON *.* TO 'ftacncf'@'%';
+
