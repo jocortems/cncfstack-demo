@@ -75,6 +75,34 @@ USE conexpweb;
 GRANT ALL PRIVILEGES ON *.* TO 'ftacncf'@'%';
 ```
 
+## Vitess Installation (Note: Either do the SQL Installtion as above or Vitess, not both)
+
+Clone the Vitess Git repo
+```
+sudo git clone https://github.com/vitessio/vitess.git 
+```
+Navigate to the following folder:
+```
+~/Vitess/vitess/examples/operator
+```
+Run the following kubectl commands:
+```
+kubectl apply -f operator.yaml 
+
+kubectl apply -f 101_initial_cluster.yaml
+```
+Get the POD running the Vitess (from the pf.sh file):
+```
+kubectl get deployment --selector="planetscale.com/component=vtgate"
+```
+Expose the deploy as a svc, get the service YAML, and edit it/clean it
+To Do: Add the example YAML file.
+
+Install MySQL Client Locally
+```
+apt install mysql-client
+```
+
 ##OpenFaaS
 
 ```
